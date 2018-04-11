@@ -25,6 +25,7 @@
 import Foundation
 import Cocoa
 
+/// Tracks pointer movement. See superclass for more information.
 class PointerMovementEventTracker: BehaviouralEventTracker {
     
     /// Two seconds between pointer movements

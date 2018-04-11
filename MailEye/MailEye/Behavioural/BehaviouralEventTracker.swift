@@ -28,7 +28,7 @@ import Cocoa
 /**
  Generalises the tracking of mouse and keyboard events.
  This class is not intended to be used directly, and should be subclassed instead.
- For each segment of data (e.g. email), we track a total (e.g. total pointer distance
+ For each segment of data (e.g. message), we track a total (e.g. total pointer distance
  and total keystrokes). Each event must have a minimum within a given timeout
  (e.g. minimum 200 points total mouse movement over 2s or 5 keystrokes
  in 5 seconds) before recording a "sub-event".

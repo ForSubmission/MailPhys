@@ -25,6 +25,7 @@
 import Foundation
 import Cocoa
 
+/// Tracks typing. See superclass for more information.
 class KeyboardEventTracker: BehaviouralEventTracker {
     
     /// Allow five seconds to think while typing

@@ -24,9 +24,164 @@
 
 import Cocoa
 
-/// Facilitates conversion to the internal Message class to a struct
-/// that can be submitted to DiMe
+/// Contains everything that we need to represent a
+/// message augmented by behavioural and gaze data.
+/// Start and end times of events allow us to time-window
+/// addionional physiological data to this message.
 struct AugmentedMessage: DiMeData {
+    
+    // MARK: - Constant fields
+    
+    /// Type of this structure (useful when exporting)
+    var _type: String = "AugmentedMessage"
+
+    /// URL representation of type
+    /// It doesn't point to anything but can be used for hierarchical representation of types
+    var type: String = "http://www.hiit.fi/ontologies/dime/#AugmentedMessage"
+
+    // MARK: - User tags
+    
+    /// 1 to 4, if set by user
+    private(set) var priority: Int = 0
+    
+    /// 1 to 4, if set by user
+    private(set) var pleasure: Int = 0
+    
+    /// 1 to 4, if set by user
+    private(set) var workload: Int = 0
+    
+    /// If this message was maked as spam by user
+    private(set) var spam: Bool = false
+    
+    /// If this message was marked as corrupted by the user
+    private(set) var corrupted: Bool = false
+    
+    /// If this message was marked as eagerly expected by user
+    private(set) var eagerlyExpected = false
+    
+    // MARK: - Mailbox-related fields
+    
+    /// If the message was downloaded as unread from the mailbox
+    var wasUnread: Bool
+    
+    /// String uniquely identifying this message
+    var appId: String
+    
+    /// Content, or hash of content of message's body
+    var plainTextContent: String?
+    
+    /// Subject, or hash of message's subject
+    var subject: String
+    
+    /// Name (if any) or e-mail of sender, or hash of name or e-mail of sender
+    let fromString: String
+    
+    /// Type-representation of sender
+    let from: Person?
+    
+    /// Size of whole body, in view coordinates
+    let bodySize: NSSize
+    
+    /// True if an attachment was present in the mailbox
+    let containsAttachment: Bool
+    
+    /// This corresponds to Message.id
+    /// It may be useful to re-reference the original message later.
+    /// Commercial applications should not expose this for privacy reasons.
+    var id: String
+
+    // MARK: - Data
+    
+    /// Timestamp when user started working on this message
+    let startUnixtime: Int
+    
+    /// Timestap when user has done working on this message
+    var endUnixtime = 0
+    
+    /// Fixations on body
+    var gazes: EyeData = EyeData.empty
+    
+    /// Fixations on body, before the user started working on this message
+    /// (i.e. the user was working on another message, then read this one
+    /// before completing the previous)
+    var pre_gazes: EyeData?
+    
+    /// Fixations on body, after the user completed this message.
+    var post_gazes: EyeData?
+    
+    /// Array of start and end times of when the message was displayed on screen
+    /// while the user was working on this message.
+    var visits: [Event] = [Event]()
+    
+    /// Then the message was displayed on screen, but before the user
+    /// started working on this message.
+    var pre_visits: [Event]?
+    
+    /// Then the message was displayed on screen, after the user
+    /// completed work on this message.
+    var post_visits: [Event]?
+    
+    /// Keywords extracted from fixations detected in body, when
+    /// the user was working on this message.
+    var keywords: [Keyword] = [Keyword]()
+    
+    /// Keywords extracted from fixations detected in body, before
+    /// the user started working on this message.
+    var pre_keywords: [Keyword]?
+    
+    /// Keywords extracted from fixations detected in body, after
+    /// the user completed work on this message.
+    var post_keywords: [Keyword]?
+    
+    /// Selections made by user on message's body, when
+    /// the user was working on this message.
+    var selections: [Selection] = [Selection]()
+    
+    /// Selections made by user on message's body, before
+    /// the user started working on this message.
+    var pre_selections: [Selection]?
+    
+    /// Selections made by user on message's body, after
+    /// the user completed work on this message.
+    var post_selections: [Selection]?
+    
+    /// Array of chunks of keyboard activity detected when
+    /// the user was working on this message (regardless of whether the window was front or not).
+    /// See `KeyboardEventTracker` for more information.
+    var keyboardActivity: [Double] = []
+    
+    /// Array of chunks of mouse movement activity detected when
+    /// the user was working on this message (regardless of whether the window was front or not).
+    /// See `PointerMovementEventTracker` for more information.
+    var pointerActivity: [Double] = []
+    
+    /// Array of chunks of mouse click activity detected when
+    /// the user was working on this message (regardless of whether the window was front or not).
+    /// See `PointerClickEventTracker` for more information.
+    var clickActivity: [Double] = []
+    
+    /// Paired to keyboardActivity, references each chunk to timestamps
+    var keyboardTimes: [Event] = []
+    
+    /// Paired to pointerActivity, references each chunk to timestamps
+    var pointerTimes: [Event] = []
+    
+    /// Paired to clickActivity, references each chunk to timestamps
+    var clickTimes: [Event] = []
+    
+    /// Unixtime of when the user first started typing a response in the reply box
+    var replyTime = -1
+
+    // MARK: - Convenience
+    
+    /// Every time HistoryManager.completeAllAugmentedMessages()
+    /// is called and this message was updated, a Date() is appended here.
+    var dataUpdates: [Date] = []
+    
+    // MARK: - Coding Keys
+    
+    // we explicitly need these since we cannot
+    // have a field named `@type` in Swift
     
     enum CodingKeys: String, CodingKey {
         case _type = "@type"
@@ -69,112 +224,6 @@ struct AugmentedMessage: DiMeData {
         case pointerTimes
         case clickTimes
     }
-    
-    // MARK: - User tags
-    
-    /// 1 to 4 when set
-    private(set) var priority: Int = 0
-    
-    /// 1 to 4 when set
-    private(set) var pleasure: Int = 0
-    
-    /// 1 to 4 when set
-    private(set) var workload: Int = 0
-    
-    /// If this message was maked as spam by user
-    private(set) var spam: Bool = false
-    
-    /// If this message was marked as corrupted by the user
-    private(set) var corrupted: Bool = false
-    
-    /// If this message was marked as eagerly expected by user
-    private(set) var eagerlyExpected = false
-    
-    // MARK: - Other fields
-    
-    /// Every time HistoryManager.completeAllAugmentedMessages()
-    /// is called and this message was updated, a Date() is appended here.
-    var dataUpdates: [Date] = []
-    
-    /// If the message was downloaded as unread from the mailbox
-    var wasUnread: Bool
-    
-    var appId: String
-    
-    var _type: String = "AugmentedMessage"
-    
-    var type: String = "http://www.hiit.fi/ontologies/dime/#AugmentedMessage"
-    
-    var plainTextContent: String?
-    
-    var subject: String
-    
-    let fromString: String
-    
-    let from: Person?
-    
-    let bodySize: NSSize
-    
-    let containsAttachment: Bool
-    
-    /// This corresponds to Message.id
-    /// It may be useful to re-reference the original message later.
-    /// Commercial applications should not expose this for privacy reasons.
-    var id: String
-    
-    let startUnixtime: Int
-    
-    var endUnixtime = 0
-    
-    var gazes: EyeData = EyeData.empty
-    
-    var pre_gazes: EyeData?
-    
-    var post_gazes: EyeData?
-    
-    var visits: [Event] = [Event]()
-    
-    var pre_visits: [Event]?
-    
-    var post_visits: [Event]?
-    
-    var keywords: [Keyword] = [Keyword]()
-    
-    var pre_keywords: [Keyword]?
-    
-    var post_keywords: [Keyword]?
-    
-    var selections: [Selection] = [Selection]()
-    
-    var pre_selections: [Selection]?
-    
-    var post_selections: [Selection]?
-    
-    var keyboardActivity: [Double] = []
-    
-    var pointerActivity: [Double] = []
-    
-    var clickActivity: [Double] = []
-    
-    /// two ints representing start and end times of keyboard events
-    var keyboardTimes: [Event] = []
-    
-    /// two ints representing start and end times of pointer events
-    var pointerTimes: [Event] = []
-    
-    /// two ints representing start and end times of click events
-    var clickTimes: [Event] = []
-    
-    /// Unixtime of when the user first started typing a response in the reply box
-    var replyTime = -1
-    
-    //    let toString: String
-    //
-    //    let to: [Person]
-    //
-    //    let ccString: String
-    //
-    //    let cc: [Person]
     
     // MARK: - Init
     

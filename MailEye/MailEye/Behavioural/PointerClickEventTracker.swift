@@ -25,6 +25,7 @@
 import Foundation
 import Cocoa
 
+/// Tracks clicks. See superclass for more information.
 class PointerClickEventTracker: BehaviouralEventTracker {
     
     /// Two seconds between pointer clicks

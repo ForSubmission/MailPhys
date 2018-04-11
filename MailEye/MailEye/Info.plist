@@ -23,7 +23,7 @@
 	<key>CFBundleSpokenName</key>
 	<string>MailEye</string>
 	<key>CFBundleVersion</key>
-	<string>8</string>
+	<string>2</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.developer-tools</string>
 	<key>LSMinimumSystemVersion</key>
