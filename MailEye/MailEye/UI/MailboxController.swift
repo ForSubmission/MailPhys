@@ -25,7 +25,7 @@
 import Cocoa
 import os.log
 
-/// The main view controller managin a table (thread list) and the currently displayed message / thread
+/// The main view controller manages a table (thread list) and the currently displayed message, header and references.
 class MailboxController: NSSplitViewController, NSWindowDelegate {
     
     /// Sets to true if the window is moving, then false again when done

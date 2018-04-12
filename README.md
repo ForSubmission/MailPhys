@@ -17,7 +17,7 @@ This file reports on which implementation details are most central to the concep
 
 ## Central classes
 
-The classes most central to our implementation are [HistoryManager](MailEye/MailEye/Model/HistoryManager.swift), [MailboxController](MailEye/MailEye/UI/MailboxController.swift), [AugmentedMessage]((MailEye/MailEye/Data/AugmentedMessage.swift) and the protocol [EyeDataProvider](MailEye/MailEye/Eye%20Tracking/EyeDataProvider.swift). These aim to the maximisation of the *awareness* of the system while also preserving *usability*, as they are responsible for the synchronisation of gaze, behavioural data and interface events.
+The classes most central to our implementation are [HistoryManager](MailEye/MailEye/Model/HistoryManager.swift), [MailboxController](MailEye/MailEye/UI/MailboxController.swift), [AugmentedMessage](MailEye/MailEye/Data/AugmentedMessage.swift) and the protocol [EyeDataProvider](MailEye/MailEye/Eye%20Tracking/EyeDataProvider.swift). These aim to the maximisation of the *awareness* of the system while also preserving *usability*, as they are responsible for the synchronisation of gaze, behavioural data and interface events.
 
 ### EyeDataProvider
 
