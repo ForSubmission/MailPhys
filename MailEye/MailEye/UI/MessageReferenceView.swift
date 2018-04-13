@@ -32,10 +32,12 @@ protocol MessageReferenceView: class {
     
 }
 
+/// A view used to display references (not to be confused with the MessageReferenceView protocol)
 class ReferenceView: NSView, MessageReferenceView {
     var correspondingMessageId: String? = nil
 }
 
+/// A view that displays a message's body
 class BodyView: NSTextView, MessageReferenceView {
     var correspondingMessageId: String? = nil
 }
